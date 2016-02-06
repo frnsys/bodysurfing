@@ -3,6 +3,7 @@ var val = 0;     // the last received value (bpm)
 var movAvg = 0;  // exponentially weighted moving average of bpms
 var alph = 0.8;  // decay for the moving average, alph < 1
 var low = false; // if the user is in the low heart rate range or not
+var changedRecently = false;
 
 // for logging to the extension's background page
 // see chrome://extensions
@@ -16,7 +17,8 @@ var highArousalSites = [
   "https://www.youtube.com/watch?v=sN-n03C28Po",
   "https://www.youtube.com/watch?v=3tjoqhx_dwk",
   "https://www.irs.gov/Affordable-Care-Act/Individuals-and-Families/Affordable-Care-Act--What-to-Expect-when-Filing-Your-2015-Tax-Return",
-  "http://www.timeout.com/newyork/blog/map-of-average-rent-by-nyc-neighborhood-is-as-depressing-as-youd-expect-082115"
+  "http://www.timeout.com/newyork/blog/map-of-average-rent-by-nyc-neighborhood-is-as-depressing-as-youd-expect-082115",
+  "http://www.cnbc.com/2016/02/05/citi-world-economy-trapped-in-death-spiral.html"
 ];
 var lowArousalSites = [
   "http://www.lookingatsomething.com/",
@@ -53,6 +55,18 @@ function setup() {
 
   // callback
   serial.onData(gotData);
+
+  // every 20s, load a new site if the user is stuck in a arousal level
+  setInterval(function() {
+    if (!changedRecently) {
+      if (low) {
+        arouse();
+      } else {
+        derouse();
+      }
+    }
+    changedRecently = false;
+  }, 20000);
 }
 
 function gotData() {
@@ -73,17 +87,27 @@ function gotData() {
     // relaxed, un-relax them
     if (movAvg <= 85 && !low) {
       low = true;
-      var url = highArousalSites[Math.floor(Math.random() * highArousalSites.length)];
-      redirect(url);
+      changedRecently = true;
+      arouse();
 
     // excited, un-excite them
     } else if (movAvg >= 90 && low) {
+      changedRecently = true;
       low = false;
-      var url = lowArousalSites[Math.floor(Math.random() * lowArousalSites.length)];
-      redirect(url);
+      derouse();
     }
     bkg.console.log(movAvg);
   }
+}
+
+function derouse() {
+      var url = lowArousalSites[Math.floor(Math.random() * lowArousalSites.length)];
+      redirect(url);
+}
+
+function arouse() {
+    var url = highArousalSites[Math.floor(Math.random() * highArousalSites.length)];
+    redirect(url);
 }
 
 setup();
