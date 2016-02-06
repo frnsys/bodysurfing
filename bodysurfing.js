@@ -1,17 +1,29 @@
 var serial;      // the serial connection
-var val = 0;     // the last received value (time b/w pulses)
-var movAvg = 0;  // exponentially weighted moving average of time b/w pulses
-var alpha = 0.8; // decay for the moving average, alpha < 1
+var val = 0;     // the last received value (bpm)
+var movAvg = 0;  // exponentially weighted moving average of bpms
+var alph = 0.8;  // decay for the moving average, alph < 1
+var low = false; // if the user is in the low heart rate range or not
 
 // for logging to the extension's background page
 // see chrome://extensions
 var bkg = chrome.extension.getBackgroundPage();
 
 var highArousalSites = [
-  "https://google.com"
+  "https://youtu.be/mGMzGxeO1wQ",
+  "https://vimeo.com/142370838",
+  "https://www.youtube.com/watch?v=8AHgBX4VO_M",
+  "https://www.youtube.com/watch?v=cMqmPnLvuvA",
+  "https://www.youtube.com/watch?v=sN-n03C28Po",
+  "https://www.youtube.com/watch?v=3tjoqhx_dwk",
+  "https://www.irs.gov/Affordable-Care-Act/Individuals-and-Families/Affordable-Care-Act--What-to-Expect-when-Filing-Your-2015-Tax-Return",
+  "http://www.timeout.com/newyork/blog/map-of-average-rent-by-nyc-neighborhood-is-as-depressing-as-youd-expect-082115"
 ];
 var lowArousalSites = [
-  "https://google.com"
+  "http://www.lookingatsomething.com/",
+  "http://www.calm.com/",
+  "http://www.donothingfor2minutes.com/",
+  "http://www.deepthoughtsbyjackhandey.com/category/deepthoughts/",
+  "https://www.youtube.com/watch?v=kZr8sR9Gwag"
 ];
 
 // redirects the current tab to the specified url
@@ -29,7 +41,7 @@ function redirect(url) {
 
 // computes the exponentially weighted moving average update
 function ewma(v) {
-  return alpha*(v - movAvg)
+  return alph*(v - movAvg)
 }
 
 function setup() {
@@ -38,8 +50,6 @@ function setup() {
   // arduino serial port, `dmesg` can you help you find it
   // serial.open("/dev/cu.usbmodem1421");
   serial.open("/dev/ttyACM0");
-  serial.onList(gotList);
-  bkg.console.log(serial);
 
   // callback
   serial.onData(gotData);
@@ -50,31 +60,30 @@ function gotData() {
   var data = serial.readLine();
   if (!data) return;
 
-  bkg.console.log(data);
-  if (data.length > 0); {
-    // coerce data to a smaller number
-    val = Number(data) / 10;
+  // we only care about BPM
+  if (data.charAt(0) === 'B') {
+    val = Number(data.substring(1));
+    if (movAvg === 0) {
+      movAvg = val;
+    } else {
+      var update = ewma(val);
+      movAvg += update;
+    }
+
+    // relaxed, un-relax them
+    if (movAvg <= 85 && !low) {
+      low = true;
+      var url = highArousalSites[Math.floor(Math.random() * highArousalSites.length)];
+      redirect(url);
+
+    // excited, un-excite them
+    } else if (movAvg >= 90 && low) {
+      low = false;
+      var url = lowArousalSites[Math.floor(Math.random() * lowArousalSites.length)];
+      redirect(url);
+    }
+    bkg.console.log(movAvg);
   }
 }
 
 setup();
-
-while (true) {
-  // check val
-  //bkg.console.log(val);
-  //var update = ewma(val);
-  //if (Math.abs(update) < 0.1) {
-    //// do something
-    ////document.getElementById('browser').src = highArousalSites[Math.floor(Math.random() * sites.length)];
-  //}
-  //movAvg += update;
-  //bkg.console.log(movAvg);
-}
-function gotList(thelist) {
-  println("List of Serial Ports:");
-  // theList is an array of their names
-  for (var i = 0; i < thelist.length; i++) {
-    // Display in the console
-    println(i + " " + thelist[i]);
-  }
-}
