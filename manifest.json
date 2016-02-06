@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+
+  "name": "bodysurfing",
+  "description": "surf the web with your biometrics",
+  "version": "1.0",
+
+  "background": {
+    "scripts": [
+      "libs/p5.min.js",
+      "libs/p5.serialport/lib/p5.serialport.js",
+      "bodysurfing.js"
+    ]
+  },
+
+  "permissions": [
+    "tabs"
+  ]
+}
