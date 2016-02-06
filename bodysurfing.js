@@ -29,7 +29,10 @@ var highArousalSites = [
   "https://www.youtube.com/watch?v=NP7hfYunoeU",
   "https://www.youtube.com/watch?v=R1uHk7Z6z24",
   "https://youtu.be/gLDYtH1RH-U?t=167",
-  "https://www.youtube.com/watch?v=nqQh60V48WI"
+  "https://www.youtube.com/watch?v=nqQh60V48WI",
+  "https://www.youtube.com/watch?v=Orlbo9WkZ2E",
+  "https://www.youtube.com/watch?v=pPaEdvCs1C8",
+  "https://www.youtube.com/watch?v=WJq4jWSQNd8"
 ];
 var lowArousalSites = [
   "http://www.lookingatsomething.com/",
@@ -52,7 +55,10 @@ var lowArousalSites = [
   "http://49.media.tumblr.com/a31cf073e7507ed79617aabab9c291c2/tumblr_mjpuzqHPYU1qzw1qyo1_500.gif",
   "http://45.media.tumblr.com/99a6e3947ce261ed69bb1718c06bed6e/tumblr_mh94l03PX11qzw1qyo1_500.gif",
   "http://49.media.tumblr.com/34d0f835a1841bcb01e38c6f1a7e4ae4/tumblr_mgwafqL33c1qzw1qyo1_500.gif",
-  "https://vimeo.com/53444911"
+  "https://vimeo.com/53444911",
+  "https://www.google.com/search?q=monochrome&espv=2&biw=1259&bih=701&source=lnms&tbm=isch&sa=X&ved=0ahUKEwiBi5KYi-TKAhULej4KHTwkBbkQ_AUIBigB#tbm=isch&q=blue",
+  "https://www.youtube.com/watch?v=11p0y9z1XOU",
+  "http://www.infinitecat.com/infinite/cat6.html"
 ];
 
 // redirects the current tab to the specified url
