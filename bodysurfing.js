@@ -4,6 +4,8 @@ var movAvg = 0;  // exponentially weighted moving average of bpms
 var alph = 0.8;  // decay for the moving average, alph < 1
 var low = false; // if the user is in the low heart rate range or not
 var changedRecently = false;
+var calibrating = true;
+var baseBpm = 0;
 
 // for logging to the extension's background page
 // see chrome://extensions
@@ -27,7 +29,8 @@ var highArousalSites = [
   "https://www.youtube.com/watch?v=5IXQ6f6eMxQ",
   "https://www.youtube.com/watch?v=NP7hfYunoeU",
   "https://www.youtube.com/watch?v=R1uHk7Z6z24",
-  "https://youtu.be/gLDYtH1RH-U?t=167"
+  "https://youtu.be/gLDYtH1RH-U?t=167",
+  "https://www.youtube.com/watch?v=nqQh60V48WI"
 ];
 var lowArousalSites = [
   "http://www.lookingatsomething.com/",
@@ -92,6 +95,13 @@ function setup() {
     }
     changedRecently = false;
   }, 20000);
+
+  // calibrate for 5s
+  setTimeout(function() {
+    baseBpm = movAvg;
+    calibrating = false;
+    bkg.console.log("Done calibrating: " + baseBpm);
+  }, 5000);
 }
 
 function gotData() {
@@ -109,17 +119,19 @@ function gotData() {
       movAvg += update;
     }
 
-    // relaxed, un-relax them
-    if (movAvg <= 85 && !low) {
-      low = true;
-      changedRecently = true;
-      arouse();
+    if (!calibrating) {
+      // relaxed, un-relax them
+      if (movAvg <= baseBpm - 5 && !low) {
+        low = true;
+        changedRecently = true;
+        arouse();
 
-    // excited, un-excite them
-    } else if (movAvg >= 90 && low) {
-      changedRecently = true;
-      low = false;
-      derouse();
+      // excited, un-excite them
+      } else if (movAvg >= baseBpm + 5 && low) {
+        changedRecently = true;
+        low = false;
+        derouse();
+      }
     }
     bkg.console.log(movAvg);
   }
