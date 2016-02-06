@@ -5,7 +5,7 @@ var alph = 0.8;  // decay for the moving average, alph < 1
 var low = false; // if the user is in the low heart rate range or not
 var changedRecently = false;
 var calibrating = true;
-var baseBpm = 0;
+var baseBpm;
 
 // for logging to the extension's background page
 // see chrome://extensions
@@ -16,7 +16,6 @@ var highArousalSites = [
   "https://vimeo.com/142370838",
   "https://www.youtube.com/watch?v=8AHgBX4VO_M",
   "https://www.youtube.com/watch?v=cMqmPnLvuvA",
-  "https://www.youtube.com/watch?v=sN-n03C28Po",
   "https://www.youtube.com/watch?v=3tjoqhx_dwk",
   "https://www.irs.gov/Affordable-Care-Act/Individuals-and-Families/Affordable-Care-Act--What-to-Expect-when-Filing-Your-2015-Tax-Return",
   "http://www.timeout.com/newyork/blog/map-of-average-rent-by-nyc-neighborhood-is-as-depressing-as-youd-expect-082115",
